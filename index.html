@@ -2,20 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
 
   <title>Catch Hattori AR</title>
 
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      color: white;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
       background: #101827;
+      color: white;
+    }
+
+    a-scene,
+    canvas {
+      touch-action: none;
     }
 
     #hud {
@@ -23,34 +39,45 @@
       top: 12px;
       left: 12px;
       right: 12px;
-      z-index: 20;
+      z-index: 100;
+      max-width: 440px;
+      margin: auto;
       padding: 14px;
-      text-align: center;
       border-radius: 18px;
-      background: rgba(16, 24, 39, 0.9);
+      background: rgba(16, 24, 39, 0.88);
+      text-align: center;
+
+      /* Let taps pass through to the game. */
       pointer-events: none;
     }
 
-    h2 { margin: 0 0 8px; }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 23px;
+    }
 
     #stats {
-      color: #8ae9ff;
       font-size: 20px;
       font-weight: bold;
+      color: #8ae9ff;
     }
 
     #message {
-      margin: 10px 0;
+      margin: 12px 0;
+      font-size: 15px;
+      line-height: 1.4;
     }
 
-    button, a {
+    button,
+    a {
       pointer-events: auto;
     }
 
     button {
-      padding: 12px 18px;
-      border: 0;
+      border: none;
       border-radius: 12px;
+      padding: 12px 18px;
+      margin: 4px;
       background: #ffd166;
       color: #101827;
       font-size: 16px;
@@ -58,23 +85,26 @@
       cursor: pointer;
     }
 
-    button:disabled { opacity: 0.5; }
-
-    #preview {
-      margin-top: 12px;
+    button:disabled {
+      opacity: 0.5;
     }
 
     #preview img {
-      width: 180px;
-      max-width: 70%;
+      width: 150px;
+      max-width: 65%;
       border: 3px solid white;
       border-radius: 8px;
     }
 
     #preview a {
       display: block;
-      margin: 8px;
+      margin: 10px 0;
       color: #8ae9ff;
+    }
+
+    #preview small {
+      display: block;
+      line-height: 1.4;
     }
 
     [hidden] {
@@ -85,31 +115,31 @@
 
 <body>
   <div id="hud">
-    <h2>🥷 Catch Hattori</h2>
+    <h1>🥷 Catch Hattori</h1>
 
     <div id="stats">Score: 0 · Time: 30</div>
 
-    <p id="message">
-      Print the picture below and put it on your wall.
-    </p>
+    <p id="message">Loading game…</p>
 
     <button id="start" disabled>Loading…</button>
     <button id="replay" hidden>Play again</button>
 
     <div id="preview">
+      <p>Print this exact picture and put it on your wall:</p>
+
       <img
         src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
-        alt="Print this exact image as your AR tracking target">
+        alt="AR tracking target">
 
       <a
         href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
         target="_blank"
         rel="noopener">
-        Open target picture to save or print
+        Open picture to save or print
       </a>
 
       <small>
-        Use this exact picture, not a screenshot of the entire page.
+        Print only the target picture, not a screenshot of this page.
       </small>
     </div>
   </div>
@@ -122,28 +152,27 @@
       uiScanning: no;
       uiError: no;
     "
-    renderer="colorManagement: true"
     color-space="sRGB"
+    renderer="colorManagement: true; alpha: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
     loading-screen="enabled: false">
 
-    <a-assets>
+    <a-assets timeout="15000">
       <img id="hattori-art" src="./hattori.svg">
     </a-assets>
 
+    <!-- No cursor: taps are handled directly in JavaScript. -->
     <a-camera
       position="0 0 0"
-      look-controls="enabled: false"
-      cursor="rayOrigin: mouse; fuse: false"
-      raycaster="objects: .clickable">
+      look-controls="enabled: false">
     </a-camera>
 
     <a-entity
       id="target"
       mindar-image-target="targetIndex: 0">
 
-      <!-- Board attached to the printed image -->
+      <!-- Game board -->
       <a-plane
         position="0 0 0.01"
         width="1"
@@ -156,13 +185,12 @@
         ">
       </a-plane>
 
-      <!-- Tap this ninja -->
+      <!-- Character -->
       <a-image
         id="ninja"
-        class="clickable"
         src="#hattori-art"
-        width="0.22"
-        height="0.257"
+        width="0.25"
+        height="0.292"
         position="0 0 0.035"
         visible="false"
         material="side: double; alphaTest: 0.05"
@@ -176,6 +204,7 @@
           easing: easeInOutSine;
         ">
       </a-image>
+
     </a-entity>
   </a-scene>
 
@@ -183,6 +212,7 @@
     const scene = document.querySelector('a-scene');
     const target = document.getElementById('target');
     const ninja = document.getElementById('ninja');
+    const artwork = document.getElementById('hattori-art');
 
     const startButton = document.getElementById('start');
     const replayButton = document.getElementById('replay');
@@ -190,8 +220,14 @@
     const message = document.getElementById('message');
     const stats = document.getElementById('stats');
 
+    const THREE = AFRAME.THREE;
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
     let tracked = false;
     let playing = false;
+    let cameraReady = false;
+
     let score = 0;
     let remaining = 30;
     let previousPosition = -1;
@@ -199,11 +235,11 @@
     let hopElapsed = 0;
 
     const positions = [
-      [-0.32,  0.18],
-      [ 0.32,  0.18],
+      [-0.30,  0.17],
+      [ 0.30,  0.17],
       [ 0,     0],
-      [-0.32, -0.18],
-      [ 0.32, -0.18]
+      [-0.30, -0.17],
+      [ 0.30, -0.17]
     ];
 
     function updateStats() {
@@ -221,11 +257,19 @@
       previousPosition = index;
 
       const [x, y] = positions[index];
-      ninja.setAttribute('position', `${x} ${y} 0.035`);
+
+      ninja.setAttribute('position', {
+        x: x,
+        y: y,
+        z: 0.035
+      });
+
       hopElapsed = 0;
     }
 
     function beginGame() {
+      if (!cameraReady) return;
+
       score = 0;
       remaining = 30;
       playing = true;
@@ -238,39 +282,66 @@
       moveNinja();
 
       message.textContent = tracked
-        ? 'Tap Hattori before he moves!'
+        ? 'Tap directly on Hattori!'
         : 'Point your camera at the printed picture.';
     }
 
     function finishGame() {
       playing = false;
+      remaining = 0;
+
       ninja.setAttribute('visible', false);
       replayButton.hidden = false;
 
-      const rank = score >= 20
-        ? 'Ninja Master'
-        : score >= 10
-          ? 'Ninja'
-          : 'Ninja Beginner';
+      updateStats();
 
-      message.textContent = `${rank}! You caught Hattori ${score} times.`;
+      const rank =
+        score >= 20 ? 'Ninja Master' :
+        score >= 10 ? 'Ninja' :
+                      'Ninja Beginner';
+
+      message.textContent =
+        `${rank}! You caught Hattori ${score} times.`;
     }
 
-    ninja.addEventListener('click', () => {
-      if (!playing || !tracked) return;
+    function showError(text) {
+      cameraReady = false;
+      playing = false;
 
-      score++;
-      updateStats();
-      moveNinja();
+      ninja.setAttribute('visible', false);
+
+      startButton.hidden = false;
+      startButton.disabled = false;
+      startButton.textContent = 'Retry camera';
+      replayButton.hidden = true;
+
+      message.textContent = text;
+    }
+
+    // MindAR reports when the camera/tracker is ready.
+    scene.addEventListener('arReady', () => {
+      cameraReady = true;
+
+      startButton.hidden = true;
+      preview.hidden = true;
+
+      beginGame();
+    });
+
+    scene.addEventListener('arError', () => {
+      showError(
+        'AR could not start. Check camera permission and open ' +
+        'your HTTPS website in a regular browser.'
+      );
     });
 
     target.addEventListener('targetFound', () => {
       tracked = true;
       lastTick = null;
 
-      message.textContent = playing
-        ? 'Target found! Tap Hattori!'
-        : 'Target found. Tap Play again.';
+      if (playing) {
+        message.textContent = 'Target found! Tap Hattori!';
+      }
     });
 
     target.addEventListener('targetLost', () => {
@@ -279,25 +350,38 @@
 
       if (playing) {
         message.textContent =
-          'Game paused. Point back at the printed picture.';
+          'Paused: point back at the printed picture.';
       }
     });
 
-    scene.addEventListener('arError', () => {
-      message.textContent =
-        'AR failed. Check camera permission, HTTPS, and browser support.';
-    });
+    function enableStart() {
+      if (!artwork.complete || artwork.naturalWidth === 0) {
+        message.textContent =
+          'Hattori image is missing. Check hattori.svg.';
+        return;
+      }
 
-    function ready() {
       startButton.disabled = false;
       startButton.textContent = 'Start camera';
+
+      message.textContent =
+        'Print the target picture, then tap Start camera.';
     }
 
     if (scene.hasLoaded) {
-      ready();
+      enableStart();
     } else {
-      scene.addEventListener('loaded', ready, { once: true });
+      scene.addEventListener('loaded', enableStart, {
+        once: true
+      });
     }
+
+    artwork.addEventListener('error', () => {
+      startButton.disabled = true;
+
+      message.textContent =
+        'Cannot load hattori.svg. Put it beside index.html.';
+    });
 
     startButton.addEventListener('click', async () => {
       startButton.disabled = true;
@@ -305,22 +389,86 @@
 
       try {
         const arSystem = scene.systems['mindar-image-system'];
+
+        if (!arSystem) {
+          throw new Error('MindAR library did not load.');
+        }
+
+        // Game starts from the arReady event above.
         await arSystem.start();
-
-        startButton.hidden = true;
-        preview.hidden = true;
-
-        beginGame();
       } catch (error) {
-        startButton.disabled = false;
-        message.textContent =
-          'Camera could not start: ' + error.message;
+        showError('Camera could not start: ' + error.message);
       }
     });
 
     replayButton.addEventListener('click', beginGame);
 
-    // Count only time when the target is visible and the page is active.
+    // Direct touch/mouse hit detection.
+    window.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary) return;
+
+      if (event.pointerType === 'mouse' && event.button !== 0) {
+        return;
+      }
+
+      // Do not count taps on interface controls.
+      if (
+        event.target instanceof Element &&
+        event.target.closest('button, a')
+      ) {
+        return;
+      }
+
+      if (!playing) return;
+
+      if (!tracked) {
+        message.textContent =
+          'Target lost. Point at the printed picture first.';
+        return;
+      }
+
+      const canvas = scene.canvas;
+      const camera = scene.camera;
+      const mesh = ninja.getObject3D('mesh');
+
+      if (!canvas || !camera || !mesh) {
+        message.textContent = 'Character is still loading…';
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+
+      if (!rect.width || !rect.height) return;
+
+      pointer.x =
+        ((event.clientX - rect.left) / rect.width) * 2 - 1;
+
+      pointer.y =
+        -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      camera.updateWorldMatrix(true, false);
+      mesh.updateWorldMatrix(true, false);
+
+      raycaster.setFromCamera(pointer, camera);
+
+      const hits = raycaster.intersectObject(mesh, true);
+
+      if (hits.length > 0) {
+        score++;
+        updateStats();
+        moveNinja();
+
+        message.textContent = '🥷 Nice catch! +1';
+      } else {
+        message.textContent = 'Missed! Tap directly on Hattori.';
+      }
+    }, { capture: true });
+
+    // Pause the timer when tracking is lost or the tab is hidden.
+    document.addEventListener('visibilitychange', () => {
+      lastTick = null;
+    });
+
     setInterval(() => {
       if (!playing || !tracked || document.hidden) {
         lastTick = null;
@@ -339,11 +487,12 @@
 
       remaining = Math.max(0, remaining - elapsed);
       hopElapsed += elapsed;
+
       updateStats();
 
       if (remaining <= 0) {
         finishGame();
-      } else if (hopElapsed >= 1.1) {
+      } else if (hopElapsed >= 1.5) {
         moveNinja();
       }
     }, 100);
