@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
+  <title>Catch Hattori AR</title>
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: white;
+      background: #101827;
+    }
+
+    #hud {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 20;
+      padding: 14px;
+      text-align: center;
+      border-radius: 18px;
+      background: rgba(16, 24, 39, 0.9);
+      pointer-events: none;
+    }
+
+    h2 { margin: 0 0 8px; }
+
+    #stats {
+      color: #8ae9ff;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #message {
+      margin: 10px 0;
+    }
+
+    button, a {
+      pointer-events: auto;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #ffd166;
+      color: #101827;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.5; }
+
+    #preview {
+      margin-top: 12px;
+    }
+
+    #preview img {
+      width: 180px;
+      max-width: 70%;
+      border: 3px solid white;
+      border-radius: 8px;
+    }
+
+    #preview a {
+      display: block;
+      margin: 8px;
+      color: #8ae9ff;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="hud">
+    <h2>🥷 Catch Hattori</h2>
+
+    <div id="stats">Score: 0 · Time: 30</div>
+
+    <p id="message">
+      Print the picture below and put it on your wall.
+    </p>
+
+    <button id="start" disabled>Loading…</button>
+    <button id="replay" hidden>Play again</button>
+
+    <div id="preview">
+      <img
+        src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
+        alt="Print this exact image as your AR tracking target">
+
+      <a
+        href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
+        target="_blank"
+        rel="noopener">
+        Open target picture to save or print
+      </a>
+
+      <small>
+        Use this exact picture, not a screenshot of the entire page.
+      </small>
+    </div>
+  </div>
+
+  <a-scene
+    mindar-image="
+      imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind;
+      autoStart: false;
+      uiLoading: no;
+      uiScanning: no;
+      uiError: no;
+    "
+    renderer="colorManagement: true"
+    color-space="sRGB"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    loading-screen="enabled: false">
+
+    <a-assets>
+      <img id="hattori-art" src="./hattori.svg">
+    </a-assets>
+
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false"
+      cursor="rayOrigin: mouse; fuse: false"
+      raycaster="objects: .clickable">
+    </a-camera>
+
+    <a-entity
+      id="target"
+      mindar-image-target="targetIndex: 0">
+
+      <!-- Board attached to the printed image -->
+      <a-plane
+        position="0 0 0.01"
+        width="1"
+        height="0.72"
+        material="
+          color: #102d52;
+          opacity: 0.85;
+          transparent: true;
+          side: double;
+        ">
+      </a-plane>
+
+      <!-- Tap this ninja -->
+      <a-image
+        id="ninja"
+        class="clickable"
+        src="#hattori-art"
+        width="0.22"
+        height="0.257"
+        position="0 0 0.035"
+        visible="false"
+        material="side: double; alphaTest: 0.05"
+        animation="
+          property: scale;
+          from: 1 1 1;
+          to: 1.08 1.08 1.08;
+          dir: alternate;
+          dur: 350;
+          loop: true;
+          easing: easeInOutSine;
+        ">
+      </a-image>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const scene = document.querySelector('a-scene');
+    const target = document.getElementById('target');
+    const ninja = document.getElementById('ninja');
+
+    const startButton = document.getElementById('start');
+    const replayButton = document.getElementById('replay');
+    const preview = document.getElementById('preview');
+    const message = document.getElementById('message');
+    const stats = document.getElementById('stats');
+
+    let tracked = false;
+    let playing = false;
+    let score = 0;
+    let remaining = 30;
+    let previousPosition = -1;
+    let lastTick = null;
+    let hopElapsed = 0;
+
+    const positions = [
+      [-0.32,  0.18],
+      [ 0.32,  0.18],
+      [ 0,     0],
+      [-0.32, -0.18],
+      [ 0.32, -0.18]
+    ];
+
+    function updateStats() {
+      stats.textContent =
+        `Score: ${score} · Time: ${Math.ceil(remaining)}`;
+    }
+
+    function moveNinja() {
+      let index;
+
+      do {
+        index = Math.floor(Math.random() * positions.length);
+      } while (index === previousPosition);
+
+      previousPosition = index;
+
+      const [x, y] = positions[index];
+      ninja.setAttribute('position', `${x} ${y} 0.035`);
+      hopElapsed = 0;
+    }
+
+    function beginGame() {
+      score = 0;
+      remaining = 30;
+      playing = true;
+      lastTick = null;
+
+      ninja.setAttribute('visible', true);
+      replayButton.hidden = true;
+
+      updateStats();
+      moveNinja();
+
+      message.textContent = tracked
+        ? 'Tap Hattori before he moves!'
+        : 'Point your camera at the printed picture.';
+    }
+
+    function finishGame() {
+      playing = false;
+      ninja.setAttribute('visible', false);
+      replayButton.hidden = false;
+
+      const rank = score >= 20
+        ? 'Ninja Master'
+        : score >= 10
+          ? 'Ninja'
+          : 'Ninja Beginner';
+
+      message.textContent = `${rank}! You caught Hattori ${score} times.`;
+    }
+
+    ninja.addEventListener('click', () => {
+      if (!playing || !tracked) return;
+
+      score++;
+      updateStats();
+      moveNinja();
+    });
+
+    target.addEventListener('targetFound', () => {
+      tracked = true;
+      lastTick = null;
+
+      message.textContent = playing
+        ? 'Target found! Tap Hattori!'
+        : 'Target found. Tap Play again.';
+    });
+
+    target.addEventListener('targetLost', () => {
+      tracked = false;
+      lastTick = null;
+
+      if (playing) {
+        message.textContent =
+          'Game paused. Point back at the printed picture.';
+      }
+    });
+
+    scene.addEventListener('arError', () => {
+      message.textContent =
+        'AR failed. Check camera permission, HTTPS, and browser support.';
+    });
+
+    function ready() {
+      startButton.disabled = false;
+      startButton.textContent = 'Start camera';
+    }
+
+    if (scene.hasLoaded) {
+      ready();
+    } else {
+      scene.addEventListener('loaded', ready, { once: true });
+    }
+
+    startButton.addEventListener('click', async () => {
+      startButton.disabled = true;
+      message.textContent = 'Starting camera…';
+
+      try {
+        const arSystem = scene.systems['mindar-image-system'];
+        await arSystem.start();
+
+        startButton.hidden = true;
+        preview.hidden = true;
+
+        beginGame();
+      } catch (error) {
+        startButton.disabled = false;
+        message.textContent =
+          'Camera could not start: ' + error.message;
+      }
+    });
+
+    replayButton.addEventListener('click', beginGame);
+
+    // Count only time when the target is visible and the page is active.
+    setInterval(() => {
+      if (!playing || !tracked || document.hidden) {
+        lastTick = null;
+        return;
+      }
+
+      const now = performance.now();
+
+      if (lastTick === null) {
+        lastTick = now;
+        return;
+      }
+
+      const elapsed = (now - lastTick) / 1000;
+      lastTick = now;
+
+      remaining = Math.max(0, remaining - elapsed);
+      hopElapsed += elapsed;
+      updateStats();
+
+      if (remaining <= 0) {
+        finishGame();
+      } else if (hopElapsed >= 1.1) {
+        moveNinja();
+      }
+    }, 100);
+  </script>
+</body>
+</html>

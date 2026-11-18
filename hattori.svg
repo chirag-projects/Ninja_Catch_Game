@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="360" height="420" viewBox="0 0 360 420"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Ninja Hattori</title>
+  <desc id="desc">
+    Cartoon ninja wearing a blue hood and outfit, with spiral cheeks,
+    a red belt, and a sword on his back.
+  </desc>
+
+  <g stroke="#17243a" stroke-width="4"
+     stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Sword behind the body -->
+    <g transform="rotate(35 252 220)">
+      <rect x="243" y="104" width="18" height="190"
+            rx="8" fill="#34465e"/>
+      <rect x="243" y="77" width="18" height="49"
+            rx="4" fill="#805136"/>
+      <path d="M244 87h16 M244 98h16 M244 109h16"
+            stroke="#e4cba3" stroke-width="3"/>
+      <path d="M230 125h44" stroke-width="8"/>
+    </g>
+
+    <!-- Legs -->
+    <path d="M133 302 L125 365 Q143 379 166 365
+             L180 322 L195 365 Q218 379 236 365
+             L226 302Z" fill="#2374cf"/>
+
+    <!-- Shoes -->
+    <path d="M126 356 Q110 368 109 385
+             Q136 396 164 383 L166 359Z"
+          fill="#174894"/>
+    <path d="M195 359 L197 383 Q225 396 252 385
+             Q251 368 235 356Z" fill="#174894"/>
+
+    <!-- Arms -->
+    <path d="M139 223 Q112 217 98 245
+             L77 282 L103 296 L142 257Z"
+          fill="#2374cf"/>
+    <path d="M221 223 Q249 217 263 245
+             L284 282 L258 296 L219 257Z"
+          fill="#2374cf"/>
+
+    <!-- Hands -->
+    <path d="M79 278 Q62 280 64 296
+             Q66 310 81 307 L98 294Z"
+          fill="#ffdbb5"/>
+    <path d="M282 278 Q299 280 297 296
+             Q295 310 280 307 L263 294Z"
+          fill="#ffdbb5"/>
+
+    <!-- Tunic -->
+    <path d="M143 212 Q180 198 217 212
+             L237 314 Q180 334 123 314Z"
+          fill="#2374cf"/>
+    <path d="M151 217 L180 247 L209 217"
+          fill="#e6f4ff"/>
+    <path d="M180 247 V296" fill="none" stroke="#174894"/>
+
+    <!-- Red belt and knot -->
+    <path d="M127 288 Q180 300 233 288
+             L235 307 Q180 320 125 307Z"
+          fill="#e83f46"/>
+    <path d="M182 305 L205 336 L218 325 L197 303"
+          fill="#e83f46"/>
+    <ellipse cx="180" cy="304" rx="12" ry="10"
+             fill="#ff5960"/>
+
+    <!-- Hood ties -->
+    <path d="M260 111 Q295 82 319 105
+             Q294 113 279 133Z" fill="#2374cf"/>
+    <path d="M265 121 Q307 126 313 155
+             Q284 148 266 140Z" fill="#2374cf"/>
+
+    <!-- Blue hood -->
+    <path d="M82 134 Q77 44 180 35
+             Q283 44 278 134
+             L268 184 Q254 222 180 232
+             Q106 222 92 184Z" fill="#2374cf"/>
+
+    <!-- Face opening -->
+    <path d="M103 119 Q180 91 257 119
+             L256 165 Q250 211 180 215
+             Q110 211 104 165Z" fill="#ffdbb5"/>
+
+    <!-- Hood forehead seam -->
+    <path d="M112 95 Q180 74 248 95"
+          fill="none" stroke="#1555a2"/>
+
+    <!-- Eyebrows -->
+    <path d="M133 126 Q147 117 160 125
+             M200 125 Q213 117 227 126"
+          fill="none"/>
+
+    <!-- Eyes -->
+    <ellipse cx="148" cy="146" rx="16" ry="20" fill="white"/>
+    <ellipse cx="212" cy="146" rx="16" ry="20" fill="white"/>
+    <ellipse cx="153" cy="149" rx="6" ry="10" fill="#17243a" stroke="none"/>
+    <ellipse cx="207" cy="149" rx="6" ry="10" fill="#17243a" stroke="none"/>
+    <circle cx="155" cy="145" r="2" fill="white" stroke="none"/>
+    <circle cx="209" cy="145" r="2" fill="white" stroke="none"/>
+
+    <!-- Nose -->
+    <path d="M176 157 Q168 171 181 172"
+          fill="none" stroke-width="3"/>
+
+    <!-- Spiral cheeks -->
+    <g fill="none" stroke="#b65d49" stroke-width="3">
+      <path d="M133 173
+               c-13-8-23 3-18 13
+               c5 10 20 8 22-2
+               c2-8-9-12-13-6
+               c-3 5 3 9 6 5"/>
+      <path d="M227 173
+               c13-8 23 3 18 13
+               c-5 10-20 8-22-2
+               c-2-8 9-12 13-6
+               c3 5-3 9-6 5"/>
+    </g>
+
+    <!-- Smile -->
+    <path d="M158 188 Q180 207 202 188"
+          fill="none" stroke-width="3"/>
+  </g>
+</svg>
