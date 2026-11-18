@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Catch Hattori AR</title>
 
@@ -25,7 +24,7 @@
       height: 100%;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background: #101827;
+      background: transparent !important;
       color: white;
     }
 
@@ -110,6 +109,11 @@
     [hidden] {
       display: none !important;
     }
+
+    a-scene,
+    canvas {
+      background: transparent !important;
+    }
   </style>
 </head>
 
@@ -131,10 +135,8 @@
         src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
         alt="AR tracking target">
 
-      <a
-        href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
-        target="_blank"
-        rel="noopener">
+      <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
+        target="_blank" rel="noopener">
         Open picture to save or print
       </a>
 
@@ -144,40 +146,27 @@
     </div>
   </div>
 
-  <a-scene
-    mindar-image="
+  <a-scene mindar-image="
       imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind;
       autoStart: false;
       uiLoading: no;
       uiScanning: no;
       uiError: no;
-    "
-    color-space="sRGB"
-    renderer="colorManagement: true; alpha: true"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    loading-screen="enabled: false">
+    " color-space="sRGB" renderer="colorManagement: true; alpha: true" vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
 
     <a-assets timeout="15000">
       <img id="hattori-art" src="./hattori.svg">
     </a-assets>
 
     <!-- No cursor: taps are handled directly in JavaScript. -->
-    <a-camera
-      position="0 0 0"
-      look-controls="enabled: false">
+    <a-camera position="0 0 0" look-controls="enabled: false">
     </a-camera>
 
-    <a-entity
-      id="target"
-      mindar-image-target="targetIndex: 0">
+    <a-entity id="target" mindar-image-target="targetIndex: 0">
 
       <!-- Game board -->
-      <a-plane
-        position="0 0 0.01"
-        width="1"
-        height="0.72"
-        material="
+      <a-plane position="0 0 0.01" width="1" height="0.72" material="
           color: #102d52;
           opacity: 0.85;
           transparent: true;
@@ -186,15 +175,8 @@
       </a-plane>
 
       <!-- Character -->
-      <a-image
-        id="ninja"
-        src="#hattori-art"
-        width="0.25"
-        height="0.292"
-        position="0 0 0.035"
-        visible="false"
-        material="side: double; alphaTest: 0.05"
-        animation="
+      <a-image id="ninja" src="#hattori-art" width="0.25" height="0.292" position="0 0 0.035" visible="false"
+        material="side: double; alphaTest: 0.05" animation="
           property: scale;
           from: 1 1 1;
           to: 1.08 1.08 1.08;
@@ -235,11 +217,11 @@
     let hopElapsed = 0;
 
     const positions = [
-      [-0.30,  0.17],
-      [ 0.30,  0.17],
-      [ 0,     0],
+      [-0.30, 0.17],
+      [0.30, 0.17],
+      [0, 0],
       [-0.30, -0.17],
-      [ 0.30, -0.17]
+      [0.30, -0.17]
     ];
 
     function updateStats() {
@@ -297,8 +279,8 @@
 
       const rank =
         score >= 20 ? 'Ninja Master' :
-        score >= 10 ? 'Ninja' :
-                      'Ninja Beginner';
+          score >= 10 ? 'Ninja' :
+            'Ninja Beginner';
 
       message.textContent =
         `${rank}! You caught Hattori ${score} times.`;
@@ -498,4 +480,5 @@
     }, 100);
   </script>
 </body>
+
 </html>
